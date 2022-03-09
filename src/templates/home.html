@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping cart</title>
+    <link href="https://fonts.googleapis.com/css?family=Dosis:400,600,700" rel="stylesheet">
+</head>
+
+<body>
+    <header class="header">
+        <div class="header-left">
+            <div class="logo">
+                <a href="/index.html">
+                    <img src="../../static/images/logo_2x.png" alt="shopping cart Logo">
+                </a>
+            </div>
+            <nav class="navigation">
+                <ul class="nav">
+                    <li><a href="/index.html">Home</a></li>
+                    <li><a href="/plp.html">Products</a></li>
+                </ul>
+            </nav>
+        </div>
+        <div class="header-right">
+            <div class="login-signup">
+                <ul class="nav">
+                    <li><a href="/login.html">SignIn</a></li>
+                    <li><a href="/signUp.html">Register</a></li>
+                </ul>
+            </div>
+            <div class="shopping-cart">
+                <img src="/static/images/cart.svg" alt="Cart icon">
+                <span class="cart-items">0 items</span>
+            </div>
+        </div>
+    </header>
+    <div class="container home">
+        <div class="carousel">
+            <div class="carousel-items"></div>
+            <div class="crousel-controls">
+                <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+                <a class="next" onclick="plusSlides(1)">&#10095;</a>
+                <div class="carousel-dots"></div>
+            </div>
+        </div>
+        <div class="home-banner-container"></div>
+    </div>
+    <footer>
+        <p>Copyright &copy; 2011-2018 Sabka Bazaar Grocery Supplies Pvt Ltd</p>
+    </footer>
+    <div class="cart-container">
+        <div class="backdrop"></div>
+        <div class="cart">
+            <div class="cart-header">
+                <h2>My Cart<span class="cart-count"></span></h2>
+                <button class="cart-close">X</button>
+            </div>
+            <div class="cart-body">
+                <div class="cart-product-container"></div>
+                <div class="cart-banner">
+                    <img src="/static/images/lowest-price.png" alt="Lowest Price Guaranteed">
+                    <p>You won't find it cheaper anywhere.</p>
+                </div>
+                <div class="cart-empty">
+                    <h3>No items in your cart.</h3>
+                    <p>Your favourite items are just click away!</p>
+                </div>
+                <button class="cart-start">Start Shopping</button>
+            </div>
+            <div class="cart-footer">
+                <p>Promo code can be applied on payment page.</p>
+                <button class="cart-checkout">
+                    Proceed to Checkout
+                    <span>Rs.0 ></span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <script>
+        let slideIndex = 1;
+
+        const showSlides = (n) => {
+            var i;
+            var slides = document.getElementsByClassName("mySlides");
+            var dots = document.getElementsByClassName("dot");
+            if (n > slides.length) { slideIndex = 1 }
+            if (n < 1) { slideIndex = slides.length }
+            for (i = 0; i < slides.length; i++) {
+                slides[i].style.display = "none";
+            }
+            for (i = 0; i < dots.length; i++) {
+                dots[i].className = dots[i].className.replace(" active", "");
+            }
+            slides[slideIndex - 1].style.display = "block";
+            dots[slideIndex - 1].className += " active";
+        }
+
+        const plusSlides = (n) => {
+            showSlides(slideIndex += n);
+        }
+
+        const currentSlide = (n) => {
+            showSlides(slideIndex = n);
+        }
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('get', 'http://localhost:5000/categories');
+        xhr.responseType = 'json';
+        xhr.send();
+        xhr.onload = () => {
+            const responseObj = xhr.response;
+            responseObj.sort((a, b) => a.order > b.order ? 1 : -1);
+            responseObj.forEach(banner => {
+                if (banner.enabled) {
+                    const content = `
+                        <div class="home-banner">
+                            <div class="banner-img">
+                                <img src="${banner.imageUrl}" alt="${banner.name}">
+                            </div>
+                            <div class="banner-content">
+                                <h2 class="banner-title">${banner.name}</h2>
+                                <p class="banner-desc">${banner.description}</p>
+                                <button type="button" onclick="window.location.assign('/plp.html?category=${banner.id}')">Explore ${banner.key}</button>
+                            </div>
+                        </div>
+                    `;
+                    document.querySelector(".home-banner-container").innerHTML += content;
+                }
+            });
+        }
+        
+        const carouselXHR = new XMLHttpRequest();
+        carouselXHR.open('get', 'http://localhost:5000/banners');
+        carouselXHR.responseType = 'json';
+        carouselXHR.send();
+        carouselXHR.onload = () => {
+            const carouselData = carouselXHR.response;
+            carouselData.sort((a, b) => a.order > b.order ? 1 : -1);
+            console.log(carouselData)
+            carouselData.forEach((item, index) => {
+                const content = `
+                <div class="mySlides fade">
+                    <img src="${item.bannerImageUrl}" alt="${item.bannerImageAlt}" style="width:100%">
+                </div>
+            `;
+                document.querySelector(".carousel-items").innerHTML += content;
+                document.querySelector(".carousel-dots").innerHTML += `<span class="dot" onclick="currentSlide(${index + 1})"></span>`
+            });
+            showSlides(slideIndex);
+            setInterval(() => {
+                showSlides(slideIndex += 1)
+            }, 3000);
+        }
+    </script>
+</body>
+
+</html>

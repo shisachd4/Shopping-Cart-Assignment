@@ -1,0 +1,49 @@
+.signUp {
+    padding-top: 100px;
+    padding-bottom: 24px;
+    .section-1 {
+        float: left;
+        width: 40%;
+        padding: 25px 8px 8px 10%;
+        h3 {
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+    }
+    .section-2 {
+        float: right;
+        width: 60%;
+        padding: 8px;
+        .form-group {
+            padding-top: 25px;
+            label {
+                display: block;
+            }
+            input {
+                width: 50%;
+                padding: 5px 0;
+                border: none;
+                border-bottom: 2px solid #eeeeee;
+            }
+            button {
+                width: 50%;
+                padding: 10px 0;
+                border: none;
+                background-color: #bc2b4b;
+                color: white;
+            }
+            input:focus {
+                outline: none;
+            }
+        }
+    }
+}
+@media screen and (max-width: 767px) {
+    .signUp {
+        .section-1 {
+            h3 {
+                font-size: 28px;
+            }
+        }
+    }
+}

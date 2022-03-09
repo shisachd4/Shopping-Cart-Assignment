@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping cart</title>
+    <link href="https://fonts.googleapis.com/css?family=Dosis:400,600,700" rel="stylesheet">
+</head>
+
+<body>
+    <header class="header">
+        <div class="header-left">
+            <div class="logo">
+                <a href="/index.html">
+                    <img src="../../static/images/logo_2x.png" alt="shopping cart Logo">
+                </a>
+            </div>
+            <nav class="navigation">
+                <ul class="nav">
+                    <li><a href="/index.html">Home</a></li>
+                    <li><a href="/plp.html">Products</a></li>
+                </ul>
+            </nav>
+        </div>
+        <div class="header-right">
+            <div class="login-signup">
+                <ul class="nav">
+                    <li><a href="/login.html">SignIn</a></li>
+                    <li><a href="/signUp.html">Register</a></li>
+                </ul>
+            </div>
+            <div class="shopping-cart">
+                <img src="/static/images/cart.svg" alt="Cart icon">
+                <span class="cart-items">0 items</span>
+            </div>
+        </div>
+    </header>
+    <div class="container product-listing">
+        <select class="product-categories-xs"
+            onchange="window.location.assign('/plp.html?category='+this.value)">
+        </select>
+        <section class="product-categories">
+            <ul></ul>
+        </section>
+        <section class="products-container"></section>
+    </div>
+    <footer>
+        <p>Copyright &copy; 2011-2018 Sabka Bazaar Grocery Supplies Pvt Ltd</p>
+    </footer>
+    <div class="cart-container">
+        <div class="backdrop"></div>
+        <div class="cart">
+            <div class="cart-header">
+                <h2>My Cart<span class="cart-count"></span></h2>
+                <button class="cart-close">X</button>
+            </div>
+            <div class="cart-body">
+                <div class="cart-product-container"></div>
+                <div class="cart-banner">
+                    <img src="/static/images/lowest-price.png" alt="Lowest Price Guaranteed">
+                    <p>You won't find it cheaper anywhere.</p>
+                </div>
+                <div class="cart-empty">
+                    <h3>No items in your cart.</h3>
+                    <p>Your favourite items are just click away!</p>
+                </div>
+                <button class="cart-start">Start Shopping</button>
+            </div>
+            <div class="cart-footer">
+                <p>Promo code can be applied on payment page.</p>
+                <button class="cart-checkout">
+                    Proceed to Checkout
+                    <span>Rs.0 ></span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <script>
+        let selectedCategory = ((new URL(document.location)).searchParams).get("category");
+
+        let categoriesReq = new XMLHttpRequest();
+        categoriesReq.open("GET", "http://localhost:5000/categories");
+        categoriesReq.responseType = 'json';
+        categoriesReq.send();
+        categoriesReq.onload = () => {
+            if (categoriesReq.status == 200) {
+                let categories = categoriesReq.response;
+                categories.sort((a, b) => a.order > b.order ? 1 : -1);
+                categories.forEach(category => {
+                    if (category.enabled) {
+
+                        const listItem = `
+                            <li>
+                                <a href="/plp.html?category=${category.id}">${category.name}</a>
+                            </li>
+                            `;
+                        const optionItem = `
+                            <option value=${category.id} ${category.id === selectedCategory ? 'selected' : ''} >
+                               ${category.name}
+                            </option>
+                            `;
+
+                        document.querySelector('.product-categories ul').innerHTML += listItem;
+                        document.querySelector('.product-categories-xs').innerHTML += optionItem;
+                    }
+                });
+            } else {
+                throw ("Error: \n Please check API response");
+            }
+        };
+
+        let productsReq = new XMLHttpRequest();
+        productsReq.open("GET", "http://localhost:5000/products");
+        productsReq.responseType = 'json';
+        productsReq.send();
+        productsReq.onload = () => {
+            if (productsReq.status == 200) {
+                let products = productsReq.response;
+                products.forEach(product => {
+                    if (product.category === selectedCategory || !selectedCategory) {
+                        const content = `
+                            <div class="card">
+                                <h2 class="card-title">${product.name}</h2>
+                                <div class="card-body">
+                                    <div class="card-img">
+                                        <img src="${product.imageURL}" alt="${product.name}">
+                                    </div>
+                                    <div class="card-desc">
+                                        <p>${product.description}
+                                        </p>
+                                        <button class="btn-xs" onclick="addToCart('${product.id}')" product-id="${product.id}">Buy Now @ MRP Rs.${product.price}</button>
+                                    </div>
+                                </div>
+                                <div class="card-footer">
+                                    <span>MRP Rs.${product.price}</span>
+                                    <button class="btn-md" onclick="addToCart('${product.id}')" product-id="${product.id}">Buy Now</button>
+                                    <button class="btn-sm" onclick="addToCart('${product.id}')" product-id="${product.id}">Buy Now @ Rs.${product.price}</button>
+                                </div>
+                            </div>
+                        `;
+                        document.querySelector('.products-container').innerHTML += content;
+                    }
+                });
+            } else {
+                throw ("Error: \n Please check API response");
+            }
+
+        };
+        const updateCart = (cart) => {
+            let cartCount = 0;
+            localStorage.setItem("cart", JSON.stringify(cart));
+            for (let i = 0; i < cart.length; i++) {
+                cartCount += cart[i].count;
+            }
+            document.querySelector(".cart-items").innerHTML = cartCount + ' Items';
+            document.querySelector(".cart-count").innerHTML = '(' + cartCount + ' Items)';
+        }
+        const addToCart = (itemID) => {
+            if (localStorage.getItem("isLoggedIn") !== "true") {
+                alert("Kindly Login");
+                return;
+            }
+            let cart = [];
+            if (localStorage.getItem("cart")) {
+                cart = JSON.parse(localStorage.getItem("cart"))
+            }
+            let products = productsReq.response;
+            products.forEach(product => {
+                if (product.id === itemID) {
+                    for (let i = 0; i < cart.length; i++) {
+                        if (cart[i].id == product.id) {
+                            if (cart[i].count < product.stock) {
+                                cart[i].count++
+                                updateCart(cart);
+                            }
+                            else {
+                                alert("Maximum limit reached for this product")
+                            }
+                            return;
+                        }
+                    }
+                    product.count = 1;
+                    cart.push(product);
+                    updateCart(cart);
+                }
+            })
+        }
+
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,116 @@
+.header {
+    position: fixed;
+    z-index: 99;
+    width: 100%;
+    height: 70px;
+    padding: 10px 10% 0 10%;
+    border-bottom: 1px solid #e5e5e5;
+    box-shadow: 0 2px 5px #e5e5e5;
+    background-color: white;
+    .nav {
+        list-style: none;
+        li {
+            float: left;
+            padding: 0 12px;
+            a {
+                text-decoration: none;
+                color: #808080;
+                &:hover {
+                    text-decoration: underline;
+                }
+            }
+        }
+    }
+    &-left {
+        float: left;
+        .logo {
+            display: inline-block;
+            img {
+                height: 50px;
+                width: 100px;
+            }
+        }
+        .navigation {
+            display: inline-block;
+            margin-left: 80px;
+        }
+    }
+    &-right {
+        float: right;
+        .login-signup {
+            height: 22px;
+            .userName {
+                cursor: pointer;
+                &:hover {
+                    text-decoration: underline;
+                }
+            }
+        }
+        .nav {
+            li {
+                padding: 0 6px 6px 6px;
+            }
+        }
+        .login-signup:after {
+            clear: both;
+            content: "";
+            display: block;
+        }
+        .shopping-cart {
+            height: 38px;
+            width: 110px;
+            margin-left: -26px;
+            background-color: #e5e5e5;
+            cursor: pointer;
+            img {
+                height: 30px;
+                width: 30px;
+                filter: invert(53%) sepia(90%) saturate(6030%) hue-rotate(326deg) brightness(90%) contrast(101%);
+            }
+            .cart-items {
+                position: relative;
+                top: -10px;
+            }
+        }
+    }
+}
+
+@media screen and (max-width: 991px) {
+    .header {
+        &-left {
+            .navigation {
+                margin-left: 60px;
+            }
+        }
+        padding: 10px 0 0 0;
+        .logo {
+            padding: 0 8px;
+        }
+        &-right .nav li:last-child {
+            padding-left: 0;
+        }
+    }
+}
+
+@media screen and (max-width: 767px) {
+    .header {
+        box-shadow: none;
+        padding: 0;
+        &-left {
+            .navigation {
+                display: none;
+            }
+        }
+        .logo {
+            padding: 8px;
+        }
+        .login-signup {
+            display: none;
+        }
+
+        &-right .shopping-cart {
+            height: 70px;
+            padding: 20px 0;
+        }
+    }
+}
